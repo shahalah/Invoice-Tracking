@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courier Invoice System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* 80mm Thermal Printer Styling */
+        @media print {
+            body * { visibility: hidden; }
+            #invoice-print, #invoice-print * { visibility: visible; }
+            #invoice-print {
+                position: absolute;
+                left: 0; top: 0;
+                width: 80mm;
+                padding: 2mm;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 12px;
+            }
+            .no-print { display: none; }
+        }
+        #invoice-print { width: 80mm; background: #fff; border: 1px solid #eee; padding: 10px; margin: auto; }
+        .qr-holder { margin: 10px 0; display: flex; justify-content: center; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-4 no-print">
+    <h2 class="mb-4">Create New Invoice</h2>
+    <form id="invoiceForm" class="card p-4 shadow-sm">
+        <div class="row g-3">
+            <div class="col-md-6"><label>Customer Name</label><input type="text" id="custName" class="form-control" required></div>
+            <div class="col-md-6"><label>Phone</label><input type="text" id="custPhone" class="form-control" required></div>
+            <div class="col-12"><label>Address</label><textarea id="custAddress" class="form-control" rows="2"></textarea></div>
+            <div class="col-md-6"><label>Product</label><input type="text" id="product" class="form-control"></div>
+            <div class="col-md-6"><label>COD Amount</label><input type="number" id="amount" class="form-control"></div>
+            <div class="col-12">
+                <button type="button" onclick="generateInvoice()" class="btn btn-primary w-100">Preview & Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="invoice-print">
+    <div class="text-center">
+        <h4>Handysz</h4>
+        <p>Phone: 017853-51615</p>
+        <hr>
+    </div>
+    <div id="bill-details">
+        </div>
+    <div class="qr-holder" id="qrcode"></div>
+    <div class="text-center">
+        <hr>
+        <p>Thank You!</p>
+        <button class="btn btn-sm btn-dark no-print" onclick="window.print()">Print</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPwFsc9j8RIPIiy_LHAt1_XNO8P-Ntpeq9d41jNyZbvVbn7z_J_0byOk1g-nj_ijV2/exec";
+
+    function generateInvoice() {
+        const id = "INV-" + Date.now();
+        const data = {
+            id: id,
+            customer: document.getElementById('custName').value,
+            phone: document.getElementById('custPhone').value,
+            address: document.getElementById('custAddress').value,
+            product: document.getElementById('product').value,
+            amount: document.getElementById('amount').value,
+            staff: "Admin"
+        };
+
+        // Update Print View
+        document.getElementById('bill-details').innerHTML = `
+            <b>ID:</b> ${data.id}<br>
+            <b>Date:</b> ${new Date().toLocaleDateString()}<br>
+            <b>Customer:</b> ${data.customer}<br>
+            <b>Phone:</b> ${data.phone}<br>
+            <b>Address:</b> ${data.address}<br>
+            <b>Product:</b> ${data.product}<br>
+            <b>COD:</b> $${data.amount}
+        `;
+
+        // Generate QR Code
+        document.getElementById('qrcode').innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+            text: `https://yourapp.com/track?id=${data.id}`,
+            width: 128, height: 128
+        });
+
+        // Save to Google Sheets
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(data)
+        }).then(() => alert("Saved to Sheet & Ready to Print"));
+    }
+</script>
+</body>
+</html>
