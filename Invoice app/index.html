@@ -24,6 +24,46 @@
         #invoice-print { width: 80mm; background: #fff; border: 1px solid #eee; padding: 10px; margin: auto; }
         .qr-holder { margin: 10px 0; display: flex; justify-content: center; }
     </style>
+    <Script>
+        async function checkLogin() {
+    const id = document.getElementById('staffID').value;
+    const pass = document.getElementById('pass').value;
+    const SCRIPT_URL = "YOUR_NEW_DEPLOY_URL";
+
+    const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: "login",
+            staffID: id,
+            password: pass
+        })
+    });
+
+    const result = await response.json();
+
+    if(result.status === "success") {
+        sessionStorage.setItem("userRole", result.role);
+        sessionStorage.setItem("userName", result.name);
+        alert("Welcome " + result.name);
+        window.location.href = "index.html"; // Redirect to main app
+    } else {
+        alert("Invalid ID or Password");
+    }
+}
+
+// Add this to your page load
+window.onload = function() {
+    const role = sessionStorage.getItem("userRole");
+    if (!role) {
+        window.location.href = "login.html"; // Send back to login if not logged in
+    }
+    
+    if (role !== "Admin") {
+        // Hide admin-only features
+        document.getElementById("deleteButton").style.display = "none";
+    }
+};
+    </Script>
 </head>
 <body class="bg-light">
 

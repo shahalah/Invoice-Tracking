@@ -1,0 +1,32 @@
+<div id="login-page" class="container mt-5">
+    <div class="card mx-auto shadow" style="max-width: 400px;">
+        <div class="card-body">
+            <h3 class="text-center">Staff Login</h3>
+            <div class="mb-3">
+                <label>Staff ID</label>
+                <input type="text" id="staffID" class="form-control" placeholder="e.g. ST-001">
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" id="pass" class="form-control">
+            </div>
+            <button onclick="checkLogin()" class="btn btn-primary w-100">Login</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function checkLogin() {
+    const id = document.getElementById('staffID').value;
+    const pass = document.getElementById('pass').value;
+
+    // Simple Logic: Store staff info in SessionStorage
+    if(pass === "admin123") { // Replace with your actual logic
+        sessionStorage.setItem("isLoggedIn", "true");
+        sessionStorage.setItem("staffName", id);
+        window.location.href = "index.html"; // Redirect to Invoice Form
+    } else {
+        alert("Invalid Login");
+    }
+}
+</script>
